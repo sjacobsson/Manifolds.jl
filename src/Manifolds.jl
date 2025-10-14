@@ -193,6 +193,7 @@ using Einsum: @einsum
 using Kronecker
 using Graphs
 using LinearAlgebra
+using LowRankApprox
 using ManifoldsBase:
     @next_trait_function,
     ℝ,
@@ -444,6 +445,7 @@ include("manifolds/Lorentz.jl")
 include("manifolds/CenteredMatrices.jl")
 include("manifolds/CholeskySpace.jl")
 include("manifolds/Circle.jl")
+include("manifolds/CPTensor.jl")
 include("manifolds/Elliptope.jl")
 include("manifolds/EmbeddedTorus.jl")
 include("manifolds/FixedRankMatrices.jl")
@@ -480,6 +482,7 @@ include("manifolds/SymmetricPositiveDefiniteAffineInvariant.jl")
 include("manifolds/SymmetricPositiveDefiniteLogCholesky.jl")
 include("manifolds/SymmetricPositiveDefiniteLogEuclidean.jl")
 include("manifolds/SymmetricPositiveSemidefiniteFixedRank.jl")
+include("manifolds/TTTensor.jl")
 include("manifolds/Tucker.jl")
 #
 include("manifolds/ProbabilitySimplex.jl")
@@ -642,6 +645,7 @@ export Euclidean,
     CenteredMatrices,
     CholeskySpace,
     Circle,
+    CPTensor,
     Elliptope,
     EssentialManifold,
     FixedRankMatrices,
@@ -687,6 +691,7 @@ export Euclidean,
     SymplecticStiefel,
     SymplecticElement,
     Torus,
+    TTTensor,
     Tucker,
     UnitaryMatrices
 # Point representation types
