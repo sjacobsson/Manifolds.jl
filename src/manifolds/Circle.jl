@@ -14,7 +14,7 @@ represented by `ℂ`-valued circle of unit numbers.
 """
 struct Circle{𝔽} <: AbstractManifold{𝔽} end
 
-Circle(𝔽::AbstractNumbers=ℝ) = Circle{𝔽}()
+Circle(𝔽::AbstractNumbers = ℝ) = Circle{𝔽}()
 
 function adjoint_Jacobi_field(::Circle{ℝ}, p, q, t, X, β::Tβ) where {Tβ}
     return X
@@ -79,13 +79,13 @@ function check_vector(M::Circle{ℝ}, p, X; kwargs...)
     return nothing
 end
 function check_vector(
-    M::Circle{ℂ},
-    p,
-    X::T;
-    atol::Real=sqrt(eps(real(float(number_eltype(T))))),
-    kwargs...,
-) where {T}
-    if !isapprox(abs(complex_dot(p, X)), 0; atol=atol, kwargs...)
+        M::Circle{ℂ},
+        p,
+        X::T;
+        atol::Real = sqrt(eps(real(float(number_eltype(T))))),
+        kwargs...,
+    ) where {T}
+    if !isapprox(abs(complex_dot(p, X)), 0; atol = atol, kwargs...)
         return DomainError(
             abs(complex_dot(p, X)),
             "The value $(X) is not a tangent vector to $(p) on $(M), since it is not orthogonal in the embedding.",
@@ -192,12 +192,12 @@ function get_coordinates_diagonalizing(::Circle{ℝ}, p, X, B::DiagonalizingOrth
     return X .* (sbv == 0 ? one(sbv) : sbv)
 end
 function get_coordinates_diagonalizing!(
-    M::Circle{ℝ},
-    Y,
-    p,
-    X,
-    B::DiagonalizingOrthonormalBasis,
-)
+        M::Circle{ℝ},
+        Y,
+        p,
+        X,
+        B::DiagonalizingOrthonormalBasis,
+    )
     Y[] = get_coordinates_diagonalizing(M, p, X, B)[]
     return Y
 end
@@ -207,24 +207,25 @@ end
 
 Return tangent vector coordinates in the Lie algebra of the [`Circle`](@ref).
 """
-get_coordinates(::Circle{ℂ}, p, X, ::DefaultOrthonormalBasis{<:Any,TangentSpaceType})
+get_coordinates(::Circle{ℂ}, p, X, ::DefaultOrthonormalBasis{<:Any, TangentSpaceType})
 function get_coordinates_orthonormal!(
-    M::Circle{ℂ},
-    Y,
-    p,
-    X,
-    n::Union{RealNumbers,ComplexNumbers},
-)
+        M::Circle{ℂ},
+        Y,
+        p,
+        X,
+        n::Union{RealNumbers, ComplexNumbers},
+    )
     Y[] = get_coordinates_orthonormal(M, p, X, n)[]
     return Y
 end
-function get_coordinates_orthonormal(::Circle{ℂ}, p, X, ::Union{RealNumbers,ComplexNumbers})
+function get_coordinates_orthonormal(::Circle{ℂ}, p, X, ::Union{RealNumbers, ComplexNumbers})
     X, p = X[1], p[1]
     Xⁱ = imag(X) * real(p) - real(X) * imag(p)
     return @SVector [Xⁱ]
 end
 
-get_vector_orthonormal(::Circle{ℝ}, p, c, ::RealNumbers) = Scalar(c[])
+get_vector_orthonormal(::Circle{ℝ}, p::StaticArray, c, ::RealNumbers) = Scalar(c[])
+get_vector_orthonormal(::Circle{ℝ}, p, c, ::RealNumbers) = fill(c[])
 # the method below is required for FD and AD differentiation in ManifoldDiff.jl
 # if changed, make sure no tests in that repository get broken
 get_vector_orthonormal(::Circle{ℝ}, p::AbstractVector, c, ::RealNumbers) = c
@@ -238,10 +239,18 @@ end
 
 Return tangent vector from the coordinates in the Lie algebra of the [`Circle`](@ref).
 """
-function get_vector_orthonormal(::Circle{ℂ}, p, c, ::Union{RealNumbers,ComplexNumbers})
-    @SArray fill(1im * c[1] * p[1])
+function get_vector_orthonormal(
+        ::Circle{ℂ},
+        p::StaticArray,
+        c,
+        ::Union{RealNumbers, ComplexNumbers},
+    )
+    return @SArray fill(1im * c[1] * p[1])
 end
-function get_vector_orthonormal!(::Circle{ℂ}, X, p, c, ::Union{RealNumbers,ComplexNumbers})
+function get_vector_orthonormal(::Circle{ℂ}, p, c, ::Union{RealNumbers, ComplexNumbers})
+    return fill(1im * c[1] * p[1])
+end
+function get_vector_orthonormal!(::Circle{ℂ}, X, p, c, ::Union{RealNumbers, ComplexNumbers})
     X .= 1im * c[1] * p[1]
     return X
 end
@@ -364,11 +373,11 @@ function Statistics.mean(::Circle{ℝ}, x::AbstractVector{<:Real}; kwargs...)
     return atan(1 / length(x) * sum(sin, x), 1 / length(x) * sum(cos, x))
 end
 function Statistics.mean(
-    ::Circle{ℝ},
-    x::AbstractVector{<:Real},
-    w::AbstractVector;
-    kwargs...,
-)
+        ::Circle{ℝ},
+        x::AbstractVector{<:Real},
+        w::AbstractVector;
+        kwargs...,
+    )
     return atan(sum(w .* sin.(x)), sum(w .* cos.(x)))
 end
 @doc raw"""
@@ -395,11 +404,11 @@ function Statistics.mean(M::Circle{ℂ}, x::AbstractVector{<:Complex}; kwargs...
     return s / abs(s)
 end
 function Statistics.mean(
-    M::Circle{ℂ},
-    x::AbstractVector{<:Complex},
-    w::AbstractVector;
-    kwargs...,
-)
+        M::Circle{ℂ},
+        x::AbstractVector{<:Complex},
+        w::AbstractVector;
+        kwargs...,
+    )
     s = sum(w .* x)
     abs(s) == 0 && error(
         "The mean for $(x) on $(M) is not defined/unique, since the sum of the complex numbers is zero",
@@ -456,17 +465,17 @@ If `vector_at` is not `nothing`, return a random tangent vector from the tangent
 the point `vector_at` on the [`Circle`](@ref) by using a normal distribution with
 mean 0 and standard deviation `σ`.
 """
-function Random.rand(M::Circle; vector_at=nothing, σ::Real=1.0)
-    return rand(Random.default_rng(), M; vector_at=vector_at, σ=σ)
+function Random.rand(M::Circle; vector_at = nothing, σ::Real = 1.0)
+    return rand(Random.default_rng(), M; vector_at = vector_at, σ = σ)
 end
-function Random.rand(rng::AbstractRNG, ::Circle{ℝ}; vector_at=nothing, σ::Real=1.0)
+function Random.rand(rng::AbstractRNG, ::Circle{ℝ}; vector_at = nothing, σ::Real = 1.0)
     if vector_at === nothing
         return sym_rem(rand(rng) * 2 * π)
     else
         return map(_ -> σ * randn(rng), vector_at)
     end
 end
-function Random.rand(rng::AbstractRNG, M::Circle{ℂ}; vector_at=nothing, σ::Real=1.0)
+function Random.rand(rng::AbstractRNG, M::Circle{ℂ}; vector_at = nothing, σ::Real = 1.0)
     if vector_at === nothing
         return sign(randn(rng, ComplexF64))
     else
@@ -476,12 +485,12 @@ function Random.rand(rng::AbstractRNG, M::Circle{ℂ}; vector_at=nothing, σ::Re
 end
 
 function Random.rand!(
-    rng::AbstractRNG,
-    M::Circle{ℝ},
-    pX;
-    vector_at=nothing,
-    σ::Real=one(eltype(pX)),
-)
+        rng::AbstractRNG,
+        M::Circle,
+        pX;
+        vector_at = nothing,
+        σ::Real = one(real(eltype(pX))),
+    )
     pX .= rand(rng, M; vector_at, σ)
     return pX
 end
@@ -499,10 +508,10 @@ Base.show(io::IO, ::Circle{𝔽}) where {𝔽} = print(io, "Circle($(𝔽))")
 Compute symmetric remainder of `x` with respect to the interall 2*`T`, i.e.
 `(x+T)%2T`, where the default for `T` is ``π``
 """
-function sym_rem(x::N, T=π) where {N<:Number}
+function sym_rem(x::N, T = π) where {N <: Number}
     return (x ≈ T ? convert(N, -T) : rem(x, convert(N, 2 * T), RoundNearest))
 end
-sym_rem(x, T=π) = map(sym_rem, x, Ref(T))
+sym_rem(x, T = π) = map(sym_rem, x, Ref(T))
 
 @doc raw"""
      parallel_transport_to(M::Circle, p, X, q)
@@ -556,5 +565,5 @@ Return volume density of [`Circle`](@ref), i.e. 1.
 """
 volume_density(::Circle, p, X) = one(eltype(X))
 
-zero_vector(::Circle, p::T) where {T<:Number} = zero(p)
+zero_vector(::Circle, p::T) where {T <: Number} = zero(p)
 zero_vector!(::Circle, X, p) = fill!(X, 0)

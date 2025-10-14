@@ -1,0 +1,26 @@
+name: nightly
+on:
+  pull_request:
+
+jobs:
+  test:
+    name: Julia ${{ matrix.julia-version }} - ${{ matrix.group }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        julia-version: ["pre"]
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        group:
+          - 'test_manifolds'
+          - 'test_integration'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: ${{ matrix.julia-version }}
+      - uses: julia-actions/julia-buildpkg@latest
+      - uses: julia-actions/julia-runtest@latest
+        env:
+          PYTHON: ""
+          MANIFOLDS_TEST_GROUP: ${{ matrix.group }}
+          fail_ci_if_error: false

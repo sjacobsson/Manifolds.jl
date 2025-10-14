@@ -5,16 +5,151 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] 2025-10-02
+
+### Added
+
+* a function `metric(M)` analogous to `embedding(M)` and `connection(M)` that returns the metric of the manifold `M`.
+* a `DefaultMetric()` type to specify that the manifold uses some specific metric, that is not further named.
+
+### Changed
+
+* Switch to using [Runic.jl](https://github.com/fredrikekre/Runic.jl) as code formatter
+* refactored all manifolds to use a parameter order of `{𝔽, T}` where `𝔽` is the number type and `T` the type of size parameter (either a `TypeParameter` or a `Tuple`).
+  this changed internally
+  * `ArraySphere{T<:Tuple,𝔽}` to `ArraySphere{𝔽, T<:Tuple}`
+  * `CenteredMatrices{T, 𝔽}` to `CenteredMatrices{𝔽, T}`
+  * `Euclidean{T, 𝔽}` to `Euclidean{𝔽, T}`
+  * `FixedRankMatrices{T, 𝔽}` to `FixedRankMatrices{𝔽, T}`
+  * `GeneralizedGrassmann{T, 𝔽, B}` to `GeneralizedGrassmann{𝔽, T, B}`
+  * `GeneralizedStiefel{T, 𝔽, B}` to `GeneralizedStiefel{𝔽, T, B}`
+  * `Grassmann{T, 𝔽, B}` to `Grassmann{𝔽, T, B}`
+  * `GeneralUnitaryMatrices{T, 𝔽, S}` to `GeneralUnitaryMatrices{𝔽, T, S}`
+  * `GraphManifold{G <: AbstractGraph, 𝔽, TM, T <: GraphManifoldType}` to `GraphManifold{𝔽, G <: AbstractGraph, TM, T <: GraphManifoldType}`
+  * `Grassmann{T, 𝔽}` to `Grassmann{𝔽, T}`
+  * `HamiltonianMatrices{T, 𝔽}` to `HamiltonianMatrices{𝔽, T}`
+  * `Oblique{T, 𝔽, S}` to `Oblique{𝔽, T, S}`
+  * `SkewHermitianMatrices{T, 𝔽}` to `SkewHermitianMatrices{𝔽, T}`
+  * `Sphere{T, 𝔽}` to `Sphere{𝔽, T}`
+  * `SphereSymmetricMatrices{T, 𝔽}` to `SphereSymmetricMatrices{𝔽, T}`
+  * `Stiefel{T, 𝔽}` to `Stiefel{𝔽, T}`
+  * `SymmetricMatrices{T, 𝔽}` to `SymmetricMatrices{𝔽, T}`
+  * `SymplecticGrassmann{T, 𝔽}` to `SymplecticGrassmann{𝔽, T}`
+  * `SymplecticStiefel{T, 𝔽}` to `SymplecticStiefel{𝔽, T}`
+  * `Tucker{T, D, 𝔽}` to `Tucker{𝔽, T, D}`
+  * `UnitaryMatrices{T, 𝔽}` to `UnitaryMatrices{𝔽, T}`
+* the functions `canoncial_project`, `differential_canonical_project`, `horizontal_lift`, `horizontal_component`, `get_total_space`, and `vertical_component` have been moved upstream to `ManifoldsBase.jl`
+
+
+### Removed
+
+* the trait system that was present additionally to the wrapper types for metric, embedding and connections. Those were moved to `default_X` functions and the dispatch was adapted to still obtain the same logic/behaviour.
+* the `QuotientManifold` type, since it was not really used and its proper definition would require functionality from [LieGroups.jl](https://juliamanifolds.github.io/LieGroups.jl/stable/)
+* all functions related to the `GroupManifold`s type and corresponding traits using the old trait system have been removed here after being deprecated for a while now.
+  These have been redesigned and introduced in the new package [LieGroups.jl](https://juliamanifolds.github.io/LieGroups.jl/stable/), see their [How to transition from `GroupManifold`s tutorial](https://juliamanifolds.github.io/LieGroups.jl/stable/tutorials/transition/) for all details.
+* all deprecated tangent vector types that had `TVector` in their name
+  * instead of `HyperboloidTVector`use`HyperboloidTangentVector`
+  * instead of `OrthogonalTVector` use`OrthogonalTangentVector`
+  * instead of `PoincareBallTVector` use `PoincareBallTangentVector`
+  * instead of `PoincareHalfSpaceTVector` use `PoincareHalfSpaceTangentVector`
+  * instead of `ProjectorTVector` use `ProjectorTangentVector`
+  * instead of `StiefelTVector` use `StiefelTangentVector`
+  * instead of `TuckerTVector` use `TuckerTangentVector`
+  * instead of `UMVTVector` use `UMVTangentVector`
+* The `QuotientManifold` type has been removed, the API for general (implicit) quotient manifolds is now already in `ManifoldsBase.jl`.
+* The  `retract_exp_ode!` and `retract_exp_ode_fused!` functions were removed. The cases in which they were correct are covered by `solve_chart_exp_ode`, and it was too easy to use `retract_exp_ode!` incorrectly.
+
+## [0.10.23] 2025-07-19
+
+### Fixed
+
+* fix a small bug in the point checks of general unitary matrices.
+
+## [0.10.22] 2025-06-25
+
+### Fixed
+
+* Support for `ForwardDiff.jl` v1
+
+## [0.10.21] 2025-06-24
+
+### Added
+
+* Support for `ForwardDiff.jl` v1
+
+## [0.10.20] 2025-06-16
+
+### Fixed
+
+* Fix in-place computation of `exp!` for `GeneralLinear`.
+
+## [0.10.19] 2025-06-14
+
+### Added
+
+* `riemannian_gradient` for the `GeneralLinear` manifold
+* `riemannian_gradient` method for `ProductManifold`.
+
+### Fixed
+
+* Fix the projection and embedding of tangent vectors on `GeneralLinear`.
+
+## [0.10.18] 2025-05-29
+
+### Fixed
+
+* Fix the supertype of `PoincareBallTangentVector` to be `AbstractTangentVector`
+* Fix the supertype of `StiefelTangentVector` to be `AbstractTangentVector`
+* Fix `riemannian_gradient` for fixed rank matrices, which did not work due to a small bug in the default fallback and a missing metric specification.
+
+## [0.10.17] 2025-04-21
+
+### Changed
+
+* deprecate `GroupManifold`s and its concrete subtypes as well as all functions related to Lie groups.
+  They can now be found in the new package [LieGroups.jl](https://juliamanifolds.github.io/LieGroups.jl/stable/), see their [How to transition from `GroupManifold`s tutorial](https://juliamanifolds.github.io/LieGroups.jl/stable/tutorials/transition/) for all details.
+
+Note that while it is currently not so easy to use `Manifolds.jl` and `LieGroups.jl` together due to the
+common definitions that are here now deprecated, it might still take a reasonable time to do a breaking
+release here, since we do not have a very good reason to yet.
+
+## [0.10.16] 2025-04-08
+
+### Changed
+
+* Added all `[compat]` entries also for the `docs/` and `tutorials/` environments
+* `get_vector` on `Circle` no longer returns `SArray` when no static arrays are passed as arguments.
+
+### Fixed
+
+* a copy pase error in the new determinant one manifold from the last release.
+
+## [0.10.15] 2025-03-28
+
+### Added
+
+* a `DeterminantOneMatrices` manifold of matrices of determinant one.
+
+### Changed
+
+* the following internal types were renamed since their super type also uses the singular
+  * `AbsoluteDeterminantOneMatrices` to `AbsoluteDeterminantOneMatrixType`
+  * `DeterminantOneMatrices` to `DeterminantOneMatrixType`
+
+### Fixed
+
+* fix `rand!` to also work on the `Circle(ℂ)`
+
 ## [0.10.14] - 2025-02-18
 
-## Changed
+### Changed
 
 * Introduced new implementation of parallel transport on `Rotations(3)` based on Rodrigues' rotation
 formula.
 
 ## [0.10.13] - 2025-02-10
 
-## Changed
+### Changed
 
 * Bumped dependency of ManifoldsBase.jl to 1.0, split `exp` into `exp` (without optional argument `t`) and `exp_fused` (with argument `t`) and similarly `retract` to `retract` and `retract_fused`.
 * ManifoldsBase.jl 1.0 also moved from `TVector` to `TangentVector`s in type names.
