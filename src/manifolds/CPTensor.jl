@@ -63,7 +63,7 @@ function embed(M::CPTensor{𝔽,V,R}, p) where {𝔽,V,R}#={{{=#
 end#=}}}=#
 
 function embed!(M::CPTensor{𝔽,V,R}, q, p) where {𝔽,V,R}#={{{=#
-    
+
     return q .= sum([
         kron([p[i][:, k] for i in 1:length(V)]...)
         for k in 1:R
@@ -79,7 +79,7 @@ function check_point(M::CPTensor{ℝ,V,R}, p; atol=1.4901161193847656e-8, kwargs
 
     # TODO: What about the permutations?
     for (g, n) in zip(p, V)
-        e = check_point(GeneralLinear(R), g' * g; atol=atol, kwargs...)
+        e = check_point(InvertibleMatrices(R), g' * g; atol=atol, kwargs...)
         if !isnothing(e)
             return e
         end
@@ -121,7 +121,7 @@ function psi1(A)#={{{=#
         A4 = A3 * A
         A5 = A4 * A
         A6 = A5 * A
-    
+
         return (I + A / 26 + 5 * A2 / 156 + A3 / 858 + A4 / 5720 + A5 / 205920 + A6 / 8648640) /
             (I - 6 * A / 13 + 5 * A2 / 52 - 5 * A3 / 429 + A4 / 1144 - A5 / 25740 + A6 / 1235520)
     else
@@ -143,7 +143,7 @@ function psi1(A)#={{{=#
             out = out * (tmp + I)
             tmp = tmp * tmp
         end
-        
+
         return out
     end
 end#=}}}=#
@@ -187,7 +187,7 @@ function exp!(M::CPTensor{ℝ,V,R}, q, p, X) where {V,R}#={{{=#
         g21 = _p[i][R + 1:end, :]
         X11 = _X[i][1:R, :]
         X21 = _X[i][R + 1:end, :]
-        
+
         tmp1 = g21 / g11
         tmp2 = tmp1' * tmp1
         Gamma12 = g11 \ (I - tmp2 / (I + tmp2)) * tmp1'
@@ -267,7 +267,7 @@ manifold_dimension(::CPTensor{𝔽,V,R}) where {𝔽,V,R} = 0 # TODO
 """
 function rand(M::CPTensor{ℝ,V,R}; vector_at=nothing, kwargs...) where {V,R}#={{{=#
     if isnothing(vector_at)
-        return [vcat(rand(GeneralLinear(R)), rand(n - R, R)) for n in V]
+        return [vcat(rand(InvertibleMatrices(R)), rand(n - R, R)) for n in V]
     else
         X = similar.(vector_at) # Initialize
         _X = [rand(s1, s2) for (s1, s2) in size.(vector_at)]
